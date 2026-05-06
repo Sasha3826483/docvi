@@ -14,6 +14,10 @@ RUN wget https://github.com/neovim/neovim/releases/download/v0.12.2/nvim-linux-a
     && mv nvim-linux-arm64 /opt/nvim \
     && ln -s /opt/nvim/bin/nvim /usr/local/bin/nvim
 
+# Определяем переменную окружения HOME для того, чтобы Neovim мог писать свои данные без root-прав
+ENV HOME=/tmp
+
+# Рабочая директория, в которой будут находится редактируемые файлы
 WORKDIR /workspace
 
 # Запускаем Neovim при старте контейнера
