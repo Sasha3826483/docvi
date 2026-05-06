@@ -1,13 +1,29 @@
+# Используем легковесный образ Debian Stable
 FROM debian:stable-slim
 
+# Обновляем пакеты и устанавливаем необходимые утилиты (sudo для прав, wget для загрузки nvim)
+# Очищаем кэш apt для уменьшения размера образа
 RUN apt-get update && apt-get install -y \
+    sudo \
     wget \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /home
+# Создаем пользователя devuser и настраиваем sudo без пароля для работы с системными файлами
+RUN useradd -m devuser \
+    && echo 'devuser ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/devuser
 
-RUN wget github.com/neovim/neovim/releases/download/v0.12.2/nvim-linux-arm64.tar.gz && \
-    tar -xzf nvim-linux-arm64.tar.gz -C /home && \
-    ln -s /home/nvim-linux-arm64/bin/nvim /usr/local/bin/nvim
+# Загружаем бинарную сборку Neovim v0.12.2 для ARM64, распаковываем и создаем симлинк в /usr/local/bin
+RUN wget https://github.com/neovim/neovim/releases/download/v0.12.2/nvim-linux-arm64.tar.gz \
+    && tar -xzf nvim-linux-arm64.tar.gz \
+    && rm nvim-linux-arm64.tar.gz \
+    && mv nvim-linux-arm64 /opt/nvim \
+    && ln -s /opt/nvim/bin/nvim /usr/local/bin/nvim
 
+# Переключаемся на созданного пользователя
+USER devuser
+
+# Устанавливаем рабочую директорию
+WORKDIR /home/devuser
+
+# Запускаем Neovim при старте контейнера
 ENTRYPOINT ["nvim"]
