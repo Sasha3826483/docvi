@@ -1,40 +1,45 @@
-# Используем легковесный образ Debian Stable
+# Базовый минималистичный образ Debian Stable.
 FROM debian:stable-slim
 
-# Загружаем бинарную сборку Neovim v0.12.2 для ARM64, распаковываем и создаем симлинк в /usr/local/bin
-RUN apt-get update && apt-get install -y \
-    wget \
-    && wget https://github.com/neovim/neovim/releases/download/v0.12.2/nvim-linux-arm64.tar.gz \
-    && tar -xzf nvim-linux-arm64.tar.gz \
-    && rm nvim-linux-arm64.tar.gz \
-    && mv nvim-linux-arm64 /opt/nvim \
-    && ln -s /opt/nvim/bin/nvim /usr/local/bin/nvim
+# Каталог, где pipx хранит виртуальные окружения установленных Python-приложений.
+ENV PIPX_HOME=/opt/pipx
 
-# Обновляем пакеты и устанавливаем необходимые утилиты
-# Очищаем кэш apt для уменьшения размера образа
-RUN apt-get install -y \
+# Каталог, куда pipx создает симлинки на исполняемые файлы.
+ENV PIPX_BIN_DIR=/usr/local/bin
+
+# Установка системных пакетов через apt
+RUN apt-get update \
+    && apt-get install -y \
+    wget \
+    curl \
     git \
     clangd \
     clang-format \
     shfmt \
     ripgrep \
     fd-find \
-    wl-clipboard \
     pipx \
     npm \
-    && rm -rf /var/lib/apt/lists/* \
-    && npm install -g bash-language-server \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN npm install -g \
+    bash-language-server \
     tree-sitter-cli \
     pyright \
-    && pipx install black
+    && npm cache clean --force
 
-RUN ln -s /tmp/.local/bin/black /usr/local/bin/black
+# Установка Neovim
+RUN wget https://github.com/neovim/neovim/releases/download/v0.12.2/nvim-linux-arm64.tar.gz \
+    && tar -xzf nvim-linux-arm64.tar.gz \
+    && mv nvim-linux-arm64 /opt/nvim \
+    && ln -s /opt/nvim/bin/nvim /usr/local/bin/nvim \
+    && rm nvim-linux-arm64.tar.gz
 
-# Определяем переменную окружения HOME для того, чтобы Neovim мог писать свои данные без root-прав
-ENV HOME=/tmp
+# Установка Python formatter'а Black через pipx
+RUN pipx install black
 
-# Рабочая директория, в которой будут находится редактируемые файлы
+# Задание рабочей директории. Сюда монтируются рабочие файлы
 WORKDIR /workspace
 
-# Запускаем Neovim при старте контейнера
+# Команда, запускаемая при старте контейнера
 ENTRYPOINT ["nvim"]
