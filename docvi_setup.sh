@@ -1,28 +1,30 @@
 #!/bin/bash
-
-# # Подтягиваем окружение для работы псевдонимов
-# source "/home/user/.bashrc"
-
-pathToFile=$(realpath -e $1)
-
-if [[ -w $1 ]]; then
-    echo "$1 is a user-file"
-    docker run --rm -it \
-        -e HOME=/tmp \
-        -u $(id -u):$(id -g) \
-        -w /workspace \
-        -v /:/workspace \
+# Определяем, строка после nvim это опция или файл
+if [[ "$1" =~ ^-[^[:space:]]*$ ]]; then
+    docker run --rm \
         -v ~/neovim_conf/:/tmp/.config/nvim \
         -v ~/.local-d/:/tmp/.local/ \
         nvim-dock:test \
-        /workspace/$pathToFile
+        $1
 else
-    echo "$1 is a root or non-user-file"
-    docker run --rm -it \
-        -w /workspace \
-        -v /:/workspace \
-        -v ~/neovim_conf/:/root/.config/nvim \
-        -v ~/.local-dR/:/root/.local/ \
-        nvim-dock:test \
-        /workspace/$pathToFile
+    pathToFile="/workspace/$(realpath -e $1)"
+    if [[ -w $1 ]]; then
+        docker run --rm -it \
+            -e HOME=/tmp \
+            -u $(id -u):$(id -g) \
+            -w /workspace \
+            -v /:/workspace \
+            -v ~/neovim_conf/:/tmp/.config/nvim \
+            -v ~/.local-d/:/tmp/.local/ \
+            nvim-dock:test \
+            $pathToFile
+    else
+        docker run --rm -it \
+            -w /workspace \
+            -v /:/workspace \
+            -v ~/neovim_conf/:/root/.config/nvim \
+            -v ~/.local-dR/:/root/.local/ \
+            nvim-dock:test \
+            $pathToFile
+    fi
 fi
