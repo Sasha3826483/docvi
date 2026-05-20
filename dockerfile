@@ -19,6 +19,7 @@ RUN apt-get update \
     ripgrep \
     fd-find \
     pipx \
+    shellcheck \
     npm \
     && rm -rf /var/lib/apt/lists/*
 
