@@ -38,8 +38,5 @@ RUN wget https://github.com/neovim/neovim/releases/download/v0.12.2/nvim-linux-a
 # Установка Python formatter'а Black через pipx
 RUN pipx install black
 
-# Задание рабочей директории. Сюда монтируются рабочие файлы
-WORKDIR /workspace
-
 # Команда, запускаемая при старте контейнера
 ENTRYPOINT ["nvim"]
