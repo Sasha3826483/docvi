@@ -76,7 +76,7 @@ fi
 if [[ $(id -u) -eq 0 ]]; then
     docviRoot $pathToFile
 else
-    if ! [[ -w $1 ]]; then
+    if [[ -e $1 && ! -w $1 ]]; then
         echo "ПермишOн денайд (говорит по-французски)"
         exit 1
     fi
