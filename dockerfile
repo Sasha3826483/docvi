@@ -30,11 +30,23 @@ RUN npm install -g \
     && npm cache clean --force
 
 # Установка Neovim
-RUN wget https://github.com/neovim/neovim/releases/download/v0.12.2/nvim-linux-arm64.tar.gz \
-    && tar -xzf nvim-linux-arm64.tar.gz \
-    && mv nvim-linux-arm64 /opt/nvim \
-    && ln -s /opt/nvim/bin/nvim /usr/local/bin/nvim \
-    && rm nvim-linux-arm64.tar.gz
+# RUN wget https://github.com/neovim/neovim/releases/download/v0.12.2/nvim-linux-arm64.tar.gz \
+#     && tar -xzf nvim-linux-arm64.tar.gz \
+#     && mv nvim-linux-arm64 /opt/nvim \
+#     && ln -s /opt/nvim/bin/nvim /usr/local/bin/nvim \
+#     && rm nvim-linux-arm64.tar.gz
+RUN set -eux; \
+    arch="$(dpkg --print-architecture)"; \
+    case "$arch" in \
+        amd64)  nvim_arch="linux-x86_64" ;; \
+        arm64)  nvim_arch="linux-arm64" ;; \
+        *) echo "Unsupported architecture: $arch"; exit 1 ;; \
+    esac; \
+    wget "https://github.com/neovim/neovim/releases/download/v0.12.2/nvim-${nvim_arch}.tar.gz"; \
+    tar -xzf "nvim-${nvim_arch}.tar.gz"; \
+    mv "nvim-${nvim_arch}" /opt/nvim; \
+    ln -s /opt/nvim/bin/nvim /usr/local/bin/nvim; \
+    rm "nvim-${nvim_arch}.tar.gz"
 
 # Установка Python formatter'а Black через pipx
 RUN pipx install black
