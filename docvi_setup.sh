@@ -15,9 +15,9 @@ docviRoot() {
     docker run --rm -it \
         -w $workSpace \
         -v /:$workSpace \
-        -v /home/user/neovim_conf/:/root/.config/nvim \
-        -v /home/user/.local-dR/:/root/.local/ \
-        nvim-dock:test \
+        -v ./data/neovim-conf/:/root/.config/nvim \
+        -v ./data/localR/:/root/.local/ \
+        docvi \
         $1
     return
 }
@@ -29,9 +29,9 @@ docviUser() {
         -u $(id -u):$(id -g) \
         -w $workSpace \
         -v /:$workSpace \
-        -v /home/user/neovim_conf/:/tmp/.config/nvim \
-        -v /home/user/.local-d/:/tmp/.local/ \
-        nvim-dock:test \
+        -v ./data/neovim-conf/:/tmp/.config/nvim \
+        -v ./data/localU/:/tmp/.local/ \
+        docvi \
         $1
     return
 }
@@ -39,9 +39,9 @@ docviUser() {
 # режим для проверок: --version и прочего
 docviCheck() {
     docker run --rm \
-        -v /home/user/neovim_conf/:/tmp/.config/nvim \
-        -v /home/user/.local-d/:/tmp/.local/ \
-        nvim-dock:test \
+        -v ./data/neovim-conf/:/tmp/.config/nvim \
+        -v ./data/localU/:/tmp/.local/ \
+        docvi \
         $1
     return
 }
