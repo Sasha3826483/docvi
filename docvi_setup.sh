@@ -8,6 +8,8 @@
 
 # Определяем констанды и переменные
 declare -r workSpace="/workspace"
+declare -r pathToData="$(dirname "$(readlink -f \
+    /usr/local/bin/docvi)")"
 pathToFile=
 
 # root-режим
@@ -15,10 +17,10 @@ docviRoot() {
     docker run --rm -it \
         -w $workSpace \
         -v /:$workSpace \
-        -v /home/user/docviApp/data/neovim-conf/:/root/.config/nvim \
-        -v /home/user/docviApp/data/localR/:/root/.local/ \
+        -v "$pathToData"/data/neovim-conf/:/root/.config/nvim \
+        -v "$pathToData"/data/localR/:/root/.local/ \
         docvi \
-        $1
+        "$1"
     return
 }
 
@@ -29,20 +31,20 @@ docviUser() {
         -u $(id -u):$(id -g) \
         -w $workSpace \
         -v /:$workSpace \
-        -v /home/user/docviApp/data/neovim-conf/:/tmp/.config/nvim \
-        -v /home/user/docviApp/data/localU/:/tmp/.local/ \
+        -v "$pathToData"/data/neovim-conf/:/tmp/.config/nvim \
+        -v "$pathToData"/data/localU/:/tmp/.local/ \
         docvi \
-        $1
+        "$1"
     return
 }
 
 # режим для проверок: --version и прочего
 docviCheck() {
     docker run --rm \
-        -v /home/user/docviApp/data/neovim-conf/:/tmp/.config/nvim \
-        -v /home/user/docviApp/data/localU/:/tmp/.local/ \
+        -v "$pathToData"/data/neovim-conf/:/tmp/.config/nvim \
+        -v "$pathToData"/data/localU/:/tmp/.local/ \
         docvi \
-        $1
+        "$1"
     return
 }
 
@@ -50,35 +52,35 @@ docviCheck() {
 #   1. опция/и + файл
 #   2. опция/и без файла
 #   * Опции нормально обработаются только в виде -abc, а не -a -b -c (таких ситуаций-то и нет, но все же)
-if [[ $1 =~ ^-.*$ ]]; then
-    if [[ -n $2 ]]; then
-        if [[ -e $2 ]]; then
-            pathToFile="$1 $workSpace$(realpath -e $2)"
+if [[ "$1" =~ ^-.*$ ]]; then
+    if [[ -n "$2" ]]; then
+        if [[ -e "$2" ]]; then
+            pathToFile=""$1" $workSpace$(realpath -e "$2")"
         else
-            pathToFile="$1 $workSpace$(pwd)/$2"
+            pathToFile=""$1" $workSpace$(pwd)/"$2""
         fi
-        # скорректируем $1 для путей: $1 теперь path
+        # скорректируем "$1" для путей: "$1" теперь path
         shift
     else
-        docviCheck $1
+        docviCheck "$1"
         exit
     fi
 else
-    if [[ -e $1 ]]; then
-        pathToFile="$workSpace$(realpath -e $1)"
+    if [[ -e "$1" ]]; then
+        pathToFile="$workSpace$(realpath -e "$1")"
     else
-        pathToFile="$workSpace$(pwd)/$1"
+        pathToFile="$workSpace$(pwd)/"$1""
     fi
 
 fi
 
 # Запускаем контейнер в зависимости от предоставленных прав
 if [[ $(id -u) -eq 0 ]]; then
-    docviRoot $pathToFile
+    docviRoot "$pathToFile"
 else
-    if [[ -e $1 && ! -w $1 ]]; then
+    if [[ -e "$1" && ! -w "$1" ]]; then
         echo "ПермишOн денайд (говорит по-французски)"
         exit 1
     fi
-    docviUser $pathToFile
+    docviUser "$pathToFile"
 fi
