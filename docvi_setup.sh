@@ -79,7 +79,7 @@ if [[ $(id -u) -eq 0 ]]; then
     docviRoot "$pathToFile"
 else
     if [[ -e "$1" && ! -w "$1" ]]; then
-        echo "ПермишOн денайд (говорит по-французски)"
+        echo "ПермишьOн деньюИд (говорит по-французски)"
         exit 1
     fi
     docviUser "$pathToFile"
