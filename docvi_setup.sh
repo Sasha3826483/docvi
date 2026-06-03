@@ -75,7 +75,7 @@ else
         pathToDir="$workSpace$(dirname "$(realpath -e "$1")")"
     else
         pathToFile="$workSpace$(pwd)/"$1""
-        pathToDir="$workSpace$(dirname "$(realpath -e "$1")")"
+        pathToDir="$workSpace$(dirname "$(realpath -m "$1")")"
     fi
 fi
 
