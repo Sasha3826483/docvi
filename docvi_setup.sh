@@ -21,7 +21,7 @@ docviRoot() {
         -v "$pathToData"/data/neovim-conf/:/root/.config/nvim \
         -v "$pathToData"/data/localR/:/root/.local/ \
         docvi \
-        "$1"
+        $1
     return
 }
 
@@ -35,7 +35,7 @@ docviUser() {
         -v "$pathToData"/data/neovim-conf/:/tmp/.config/nvim \
         -v "$pathToData"/data/localU/:/tmp/.local/ \
         docvi \
-        "$1"
+        $1
     return
 }
 
